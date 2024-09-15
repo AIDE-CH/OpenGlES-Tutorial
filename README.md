@@ -3,6 +3,16 @@
    
 <p><a href="https://www.youtube.com/watch?v=jyo4ucUg-l4&list=PL809p4D7egYeNzDkWr80MZYrZiz3yF8H_">Open Youtube Playlist </a> </p>
 <ol>
+  <li>Video 04 
+    <ul>
+        <li> create a rectangle using two triangles </li>
+        <li> drawing two rectangles using two vertex arrays </li>
+        <li> adding model, view, and projection matrices to the vertex shader </li>
+        <li> using the model matrix to rotate one object </li>
+        <li> Adding textview to display the frames per seconds to the activity </li>
+    </ul>
+    <img alt="Image" title="icon" src="doc/imgs/vid04.gif" />
+  </li>
   <li>Video 03 
     <ul>
         <li> create assets file for fragment and vertex shaders </li>

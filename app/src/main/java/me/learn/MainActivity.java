@@ -3,6 +3,7 @@ package me.learn;
 import android.opengl.GLES20;
 import android.opengl.GLES32;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,6 +15,8 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.text.DecimalFormat;
+import java.util.Date;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -26,21 +29,53 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     private static String TAG = MainActivity.class.getSimpleName();
 
-    float[] mVerticesData = new float[]{
-            0.0F, 0.5F, 0.0F,
-            -0.5F, 0.0F, 0.0F,
-            0.5F, 0.0F, 0.0F,
-
-            0.0F, -0.5F, 0.0F,
-            -0.5F, 0.0F, 0.0F,
-            0.5F, 0.0F, 0.0F,
-    };
-
-
     final static int BytesPerFloat = 4;
     final static int BytesPerShort = 2;
     final static int FloatsPerPosition = 3;
 
+    float[] mVerticesData = new float[]{
+            -0.5F, 0.5F, 0.0F,
+            -0.5F, 0.1F, 0.0F,
+            0.5F, 0.1F, 0.0F,
+
+            -0.5F, 0.5F, 0.0F,
+            0.5F, 0.1F, 0.0F,
+            0.5F, 0.5F, 0.0F,
+    };
+
+    float[] mVerticesData2 = new float[]{
+            -0.5F, -0.5F, 0.0F,
+            -0.5F, -0.1F, 0.0F,
+            0.5F, -0.1F, 0.0F,
+
+            -0.5F, -0.5F, 0.0F,
+            0.5F, -0.1F, 0.0F,
+            0.5F, -0.5F, 0.0F,
+    };
+
+    private int gl_vArray;
+    private int gl_vArray2;
+
+
+    private float[] model;
+    private float[] view;
+    private float[] projection;
+
+    private float[] identity;
+    private int glModel, glView, glProjection;
+
+    private float mWidth;
+    private float mHeight;
+
+    private int glProgram;
+
+
+    private void checkErr(int loop){
+        int err  = GLES32.glGetError();
+        if( err != 0){
+            Log.d("Err(", "" + err + ") in loop (" + loop + ")");
+        }
+    }
 
     private String readAssetFile(String fileName){
         BufferedReader reader = null;
@@ -110,9 +145,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         return programId;
     }
 
-    private int gl_vArray;
-    private int gl_program;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,24 +155,39 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         mBinding.surfaceView.setRenderer(this);
     }
 
-    private void checkErr(int loop){
-        int err  = GLES32.glGetError();
-        if( err != 0){
-            Log.d("Err(", "" + err + ") in loop (" + loop + ")");
-        }
-    }
-
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES32.glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
 
-        gl_program = createProgram("simple");
+        glProgram = createProgram("modelviewprojection");
 
-        GLES32.glUseProgram(gl_program);
-        int gl_position = GLES32.glGetAttribLocation(gl_program, "position");
+        GLES32.glUseProgram(glProgram);
+        int gl_position = GLES32.glGetAttribLocation(glProgram, "a_Position");
+
+        glModel = GLES32.glGetUniformLocation(glProgram, "a_Model");
+        checkErr(0);
+        glView = GLES32.glGetUniformLocation(glProgram, "a_View");
+        checkErr(0);
+        glProjection = GLES32.glGetUniformLocation(glProgram, "a_Projection");
+        checkErr(0);
 
         int[] tmp = sendVertexDataToGL(mVerticesData, gl_position);
         gl_vArray = tmp[0];
+
+        tmp = sendVertexDataToGL(mVerticesData2, gl_position);
+        gl_vArray2 = tmp[0];
+
+        model = new float[16];
+        view = new float[16];
+        projection = new float[16];
+        identity = new float[16];
+
+        Matrix.setIdentityM(model, 0);
+        Matrix.setIdentityM(view, 0);
+        Matrix.setIdentityM(projection, 0);
+        Matrix.setIdentityM(identity, 0);
+
+        Matrix.translateM(view, 0, 0.0F, 0.0F, -3.0F );
     }
 
     private int[] sendVertexDataToGL(float[] data, int gl_position) {
@@ -162,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         GLES32.glBindBuffer(GLES32.GL_ARRAY_BUFFER, gl_buffer_id);
         GLES32.glBufferData(GLES32.GL_ARRAY_BUFFER, data.length*4, vertices_data, GLES32.GL_STATIC_DRAW);
 
-
         GLES32.glEnableVertexAttribArray(gl_position);
         GLES32.glVertexAttribPointer(gl_position, FloatsPerPosition, GLES32.GL_FLOAT, false,
                 FloatsPerPosition*BytesPerFloat, 0);
@@ -172,18 +218,55 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        mWidth = width;
+        mHeight = height;
+        // Set the viewport
+        GLES32.glViewport(0, 0, width, height);
+        checkErr(loop);
+        float aspect = mWidth / mHeight;
+        Matrix.perspectiveM(projection, 0, 45.0F, aspect, 0.1F, 100.0F);
+    }
 
+    private int frameCount = 0;
+    private long startTime = new Date().getTime();
+
+    private void updateFPS() {frameCount++;
+        long currTime = new Date().getTime();
+        double seconds = (double) (currTime - startTime)/1000.0;
+        if(seconds > 1){
+            double fps = (double) frameCount / seconds;
+            frameCount = 0;
+            startTime = currTime;
+            DecimalFormat df = new DecimalFormat("#.00");
+            runOnUiThread(()-> {mBinding.upperRightTextView.setText("FPS:" + df.format(fps));} );
+        }
     }
 
     int loop = 0;
     @Override
     public void onDrawFrame(GL10 gl) {
+        updateFPS();
+
         loop++;
         checkErr(loop);
         GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT | GLES32.GL_DEPTH_BUFFER_BIT);
 
-        GLES32.glUseProgram(gl_program);
+        Matrix.rotateM(model, 0, 3F, 0, 1, 0);
+        GLES32.glUseProgram(glProgram);
+        GLES32.glUniformMatrix4fv(glModel, 1, false, model, 0);
+        GLES32.glUniformMatrix4fv(glView, 1, false, view, 0);
+        GLES32.glUniformMatrix4fv(glProjection, 1, false, projection, 0);
+
+
+        int gl_color = GLES32.glGetUniformLocation(glProgram, "a_Color");
+        GLES32.glUniform3f(gl_color, 1.0F, 1.0F, 0);
         GLES32.glBindVertexArray(gl_vArray);
+        GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, 6);
+
+
+        GLES32.glUniformMatrix4fv(glModel, 1, false, identity, 0);
+        GLES32.glUniform3f(gl_color, 1.0F, 1.0F, 1.0F);
+        GLES32.glBindVertexArray(gl_vArray2);
         GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, 6);
     }
 }
