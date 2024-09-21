@@ -23,4 +23,39 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/moveImageButton"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        app:srcCompat="@drawable/move"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/surfaceView"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/rotateImageButton"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/surfaceView"
+        app:layout_constraintStart_toEndOf="@id/moveImageButton"
+        app:srcCompat="@drawable/rotate" />
+    <ImageButton
+        android:id="@+id/upDownImageButton"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/surfaceView"
+        app:layout_constraintStart_toEndOf="@id/rotateImageButton"
+        app:srcCompat="@drawable/up_down" />
+
+    <ImageButton
+        android:id="@+id/resetImageButton"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/surfaceView"
+        app:layout_constraintStart_toEndOf="@id/upDownImageButton"
+        app:srcCompat="@drawable/camera_back" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

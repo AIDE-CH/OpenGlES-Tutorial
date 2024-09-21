@@ -1,12 +1,18 @@
 package me.learn;
 
+import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLES32;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
@@ -23,9 +29,19 @@ import javax.microedition.khronos.opengles.GL10;
 
 import me.learn.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+public class MainActivity extends AppCompatActivity implements GLSurfaceView.Renderer,
+View.OnTouchListener, GestureDetector.OnGestureListener{
+    enum InputMode{
+        MOVE,
+        ROTATE,
+        UP_DOWN
+    }
+
+    private InputMode mCurrInputMode = InputMode.MOVE;
 
     ActivityMainBinding mBinding;
+
+    private GestureDetector mGestureDetector;
 
     private static String TAG = MainActivity.class.getSimpleName();
 
@@ -153,6 +169,49 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
 
         mBinding.surfaceView.setEGLContextClientVersion(3);
         mBinding.surfaceView.setRenderer(this);
+        mGestureDetector = new GestureDetector(this, this);
+        mBinding.surfaceView.setOnTouchListener(this);
+        
+        mBinding.moveImageButton.setOnClickListener(v -> {setCurrentInputMode(InputMode.MOVE);});
+        mBinding.rotateImageButton.setOnClickListener(v -> {setCurrentInputMode(InputMode.ROTATE);});
+        mBinding.upDownImageButton.setOnClickListener(v -> {setCurrentInputMode(InputMode.UP_DOWN);});
+        mBinding.resetImageButton.setOnClickListener(v -> {resetCamera();});
+
+        setCurrentInputMode(mCurrInputMode);
+    }
+
+    private float[] camPos = {0, 0, -3};
+    private float camXAngle = 0;
+    private float camYAngle = 0;
+
+    private void resetCamera() {
+        camPos[0] = 0; camPos[1] = 0; camPos[2] = -3;
+        camXAngle = 0;
+        camYAngle = 0;
+
+        Matrix.setRotateEulerM2(view, 0, camXAngle, camYAngle, 0);
+        Matrix.translateM(view, 0, camPos[0], camPos[1], camPos[2]);
+    }
+
+    private void setCurrentInputMode(InputMode inputMode) {
+        int selectedColor = Color.argb(255, 255, 200, 0);
+        int notSelectedColor = Color.argb(255, 200, 200, 200);
+        mCurrInputMode = inputMode;
+        if(mCurrInputMode == InputMode.MOVE){
+            mBinding.moveImageButton.setBackgroundColor(selectedColor);
+        }else{
+            mBinding.moveImageButton.setBackgroundColor(notSelectedColor);
+        }
+        if(mCurrInputMode == InputMode.ROTATE){
+            mBinding.rotateImageButton.setBackgroundColor(selectedColor);
+        }else{
+            mBinding.rotateImageButton.setBackgroundColor(notSelectedColor);
+        }
+        if(mCurrInputMode == InputMode.UP_DOWN){
+            mBinding.upDownImageButton.setBackgroundColor(selectedColor);
+        }else{
+            mBinding.upDownImageButton.setBackgroundColor(notSelectedColor);
+        }
     }
 
     @Override
@@ -268,5 +327,58 @@ public class MainActivity extends AppCompatActivity implements GLSurfaceView.Ren
         GLES32.glUniform3f(gl_color, 1.0F, 1.0F, 1.0F);
         GLES32.glBindVertexArray(gl_vArray2);
         GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, 6);
+    }
+
+    @Override
+    public boolean onDown(@NonNull MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(@NonNull MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(@NonNull MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+        switch (mCurrInputMode){
+            case MOVE:
+                camPos[0] += 10*distanceX/mWidth;
+                camPos[2] += 10*distanceY/mHeight;
+                break;
+            case ROTATE:
+                camXAngle += 30*distanceY/mHeight;
+                camYAngle += 30*distanceX/mWidth;
+                break;
+            case UP_DOWN:
+                camPos[1] -= 10*distanceY/mHeight;
+                break;
+        }
+
+        Matrix.setRotateEulerM2(view, 0, camXAngle, camYAngle, 0);
+        Matrix.translateM(view, 0, camPos[0], camPos[1], camPos[2]);
+
+        return false;
+    }
+
+    @Override
+    public void onLongPress(@NonNull MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
+        return true;
     }
 }
