@@ -1,9 +1,12 @@
 package me.learn;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLES32;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,30 +51,33 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
     final static int BytesPerFloat = 4;
     final static int BytesPerShort = 2;
     final static int FloatsPerPosition = 3;
+    final static int FloatsPerColor = 3;
+    final static int FloatsPerTexture = 2;
 
     float[] mVerticesData = new float[]{
-            -0.5F, 0.5F, 0.0F,
-            -0.5F, 0.1F, 0.0F,
-            0.5F, 0.1F, 0.0F,
+            -0.5F, 0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F,
+            -0.5F, 0.1F, 0.0F, 1.0F, 1.0F, 0.0F, 0, 0,
+            0.5F, 0.1F, 0.0F, 1.0F, 1.0F, 0.0F, 1.0F, 0,
 
-            -0.5F, 0.5F, 0.0F,
-            0.5F, 0.1F, 0.0F,
-            0.5F, 0.5F, 0.0F,
+            -0.5F, 0.5F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F,
+            0.5F, 0.1F, 0.0F, 1.0F, 1.0F, 0.0F,  1.0F, 0.0F,
+            0.5F, 0.5F, 0.0F, 1.0F, 1.0F, 0.0F,  1.0F, 1.0F
     };
 
     float[] mVerticesData2 = new float[]{
-            -0.5F, -0.5F, 0.0F,
-            -0.5F, -0.1F, 0.0F,
-            0.5F, -0.1F, 0.0F,
+            -0.5F, -0.5F, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F, 1.0F,
+            -0.5F, -0.1F, 0.0F, 1.0F, 1.0F, 1.0F, 0, 0,
+            0.5F, -0.1F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0,
 
-            -0.5F, -0.5F, 0.0F,
-            0.5F, -0.1F, 0.0F,
-            0.5F, -0.5F, 0.0F,
+            -0.5F, -0.5F, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F, 1.0F,
+            0.5F, -0.1F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0,
+            0.5F, -0.5F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F
     };
 
     private int gl_vArray;
     private int gl_vArray2;
-
+    private int glTexBuffer;
+    private int glTexBuffer2;
 
     private float[] model;
     private float[] view;
@@ -161,6 +167,28 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
         return programId;
     }
 
+    private int sendTextureToGl(final int resourceId) {
+        final int[] textureHandle = new int[1];
+        GLES32.glGenTextures(1, textureHandle, 0);
+        if (textureHandle[0] == 0)
+        {
+            throw new RuntimeException("Error generating texture name.");
+        }
+        final int tex = textureHandle[0];
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resourceId, options);
+
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, tex);
+        GLES32.glTexParameteri(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_MIN_FILTER, GLES32.GL_NEAREST);
+        GLUtils.texImage2D(GLES32.GL_TEXTURE_2D, 0, bitmap, 0);
+        GLES32.glGenerateMipmap(GLES32.GL_TEXTURE_2D);
+        bitmap.recycle();
+
+        return tex;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -218,7 +246,13 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES32.glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
 
-        glProgram = createProgram("modelviewprojection");
+
+        glTexBuffer = sendTextureToGl(R.drawable.wall);
+        checkErr(0);
+        glTexBuffer2 = sendTextureToGl(R.drawable.wall_with_face);
+        checkErr(0);
+
+        glProgram = createProgram("colortexture");
 
         GLES32.glUseProgram(glProgram);
         int gl_position = GLES32.glGetAttribLocation(glProgram, "a_Position");
@@ -230,10 +264,13 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
         glProjection = GLES32.glGetUniformLocation(glProgram, "a_Projection");
         checkErr(0);
 
-        int[] tmp = sendVertexDataToGL(mVerticesData, gl_position);
+        int gl_color = GLES32.glGetAttribLocation(glProgram, "a_Color");
+        int gl_texture = GLES32.glGetAttribLocation(glProgram, "a_Texture");
+
+        int[] tmp = sendVertexDataToGL(mVerticesData, gl_position, gl_color, gl_texture);
         gl_vArray = tmp[0];
 
-        tmp = sendVertexDataToGL(mVerticesData2, gl_position);
+        tmp = sendVertexDataToGL(mVerticesData2, gl_position, gl_color, gl_texture);
         gl_vArray2 = tmp[0];
 
         model = new float[16];
@@ -249,7 +286,7 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
         Matrix.translateM(view, 0, 0.0F, 0.0F, -3.0F );
     }
 
-    private int[] sendVertexDataToGL(float[] data, int gl_position) {
+    private int[] sendVertexDataToGL(float[] data, int gl_position, int gl_color, int gl_texture) {
         ByteBuffer vertices_data_bytes = ByteBuffer.allocateDirect(data.length*BytesPerFloat)
                 .order(ByteOrder.nativeOrder());
         FloatBuffer vertices_data = vertices_data_bytes.asFloatBuffer();
@@ -270,7 +307,16 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
 
         GLES32.glEnableVertexAttribArray(gl_position);
         GLES32.glVertexAttribPointer(gl_position, FloatsPerPosition, GLES32.GL_FLOAT, false,
-                FloatsPerPosition*BytesPerFloat, 0);
+                (FloatsPerPosition+FloatsPerColor+FloatsPerTexture)*BytesPerFloat, 0);
+
+        GLES32.glEnableVertexAttribArray(gl_color);
+        GLES32.glVertexAttribPointer(gl_color, 3, GLES32.GL_FLOAT, false,
+                (FloatsPerPosition+FloatsPerColor+FloatsPerTexture)*BytesPerFloat, FloatsPerPosition*BytesPerFloat);
+
+        GLES32.glEnableVertexAttribArray(gl_texture);
+        GLES32.glVertexAttribPointer(gl_texture, 2, GLES32.GL_FLOAT, false,
+                (FloatsPerPosition+FloatsPerColor+FloatsPerTexture)*BytesPerFloat,
+                (FloatsPerPosition+FloatsPerColor)*BytesPerFloat);
 
         return  new int[]{gl_array_id, gl_buffer_id};
     }
@@ -318,14 +364,16 @@ View.OnTouchListener, GestureDetector.OnGestureListener{
 
 
         int gl_color = GLES32.glGetUniformLocation(glProgram, "a_Color");
-        GLES32.glUniform3f(gl_color, 1.0F, 1.0F, 0);
+        GLES32.glUniform3f(gl_color, 1.0F, 1.0F, 1.0F);
         GLES32.glBindVertexArray(gl_vArray);
+        GLES32.glBindTexture(GLES20.GL_TEXTURE_2D, glTexBuffer);
         GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, 6);
 
 
         GLES32.glUniformMatrix4fv(glModel, 1, false, identity, 0);
         GLES32.glUniform3f(gl_color, 1.0F, 1.0F, 1.0F);
         GLES32.glBindVertexArray(gl_vArray2);
+        GLES32.glBindTexture(GLES20.GL_TEXTURE_2D, glTexBuffer2);
         GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, 6);
     }
 
