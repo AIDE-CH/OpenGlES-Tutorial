@@ -52,4 +52,8 @@ public abstract class AObj {
         glDrawArrays(GL_TRIANGLES, first, count);
     }
 
+    protected void drawLines(int first, int count, float lineWidth) {
+        glLineWidth(lineWidth);
+        glDrawArrays(GL_LINES, first, count);
+    }
 }

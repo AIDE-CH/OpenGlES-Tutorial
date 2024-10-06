@@ -53,6 +53,7 @@ public class Scene extends AScene implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
+        glEnable(GL_DEPTH_TEST);
         mCamera.init(this);
         initObjs();
     }
