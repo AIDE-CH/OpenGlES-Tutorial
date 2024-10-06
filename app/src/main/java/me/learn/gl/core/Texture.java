@@ -14,9 +14,9 @@ public class Texture {
     private Texture(){
     }
 
-    public static Texture load(Context ctx, final int id) {
+    public static Texture load(Context ctx, String path) {
         Texture t = new Texture();
-        t.sendTextureToGl(ctx, id);
+        t.sendTextureToGl(ctx, path);
         return t;
     }
 
@@ -24,7 +24,7 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, mId);
     }
 
-    private void sendTextureToGl(Context ctx, final int resourceId) {
+    private void genId() {
         final int[] textureHandle = new int[1];
         glGenTextures(1, textureHandle, 0);
         if (textureHandle[0] == 0)
@@ -32,10 +32,13 @@ public class Texture {
             throw new RuntimeException("Error generating texture name.");
         }
         mId = textureHandle[0];
+    }
 
-        final Bitmap bitmap = Utils.readBitmapResource(ctx, resourceId);
+    private void sendTextureToGl(Context ctx, String path) {
+        genId();
+        bind();
 
-        glBindTexture(GL_TEXTURE_2D, mId);
+        final Bitmap bitmap = Utils.getBitmapFromAsset(ctx, path);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         GLUtils.texImage2D(GL_TEXTURE_2D, 0, bitmap, 0);
         glGenerateMipmap(GL_TEXTURE_2D);

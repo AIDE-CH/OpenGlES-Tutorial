@@ -1,8 +1,7 @@
 package me.learn.gl.core;
 
 
-import static android.opengl.GLES20.GL_TRIANGLES;
-import static android.opengl.GLES20.glDrawArrays;
+import static android.opengl.GLES32.*;
 
 import android.opengl.Matrix;
 
@@ -11,16 +10,25 @@ import me.learn.gl.MatUtils;
 public abstract class AObj {
     protected float[] mModelMatrix;
     protected AScene mScene;
+    protected IObjUpdateCall mUpdateCall;
 
-
+    public void setUpdateCall(IObjUpdateCall call){
+        mUpdateCall = call;
+    }
     public void init(AScene scene){
         mScene = scene;
         onInit();
     }
+    public void update(long timestamp){
+        if(mUpdateCall != null){
+            mUpdateCall.update(timestamp, this);
+        }
+        onUpdate(timestamp);
+    }
 
     public abstract void onInit();
+    public abstract void onUpdate(long timestamp);
     public abstract void destroy(AScene scene);
-    public abstract void update(long time);
     public abstract void draw(float[] viewMatrix, float[] projectionMatrix);
 
     public AObj(){
@@ -32,8 +40,12 @@ public abstract class AObj {
         MatUtils.translateMat4(mModelMatrix, xyz);
     }
 
-    public void rotate(float[] xyzAngles){
-        Matrix.setRotateEulerM2(mModelMatrix, 0, xyzAngles[0], xyzAngles[1], xyzAngles[2]);
+    public void setTranslation(float[] xyz){
+        MatUtils.setTranslationMat4(mModelMatrix, xyz);
+    }
+
+    public void rotate(float angle, float x, float y, float z){
+        Matrix.rotateM(mModelMatrix, 0, angle, x, y, z);
     }
 
     protected void drawTriangles(int first, int count) {

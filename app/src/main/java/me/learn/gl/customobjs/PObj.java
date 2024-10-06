@@ -42,7 +42,7 @@ public class PObj extends AObj {
     }
 
     @Override
-    public void update(long time) {
+    public void onUpdate(long time) {
     }
 
     @Override

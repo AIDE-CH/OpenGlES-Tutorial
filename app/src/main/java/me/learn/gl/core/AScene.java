@@ -2,20 +2,24 @@ package me.learn.gl.core;
 
 import android.content.Context;
 
+import static android.opengl.GLES32.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AScene {
+import javax.microedition.khronos.opengles.GL10;
+
+public abstract class AScene {
     protected float mWidth;
     protected float mHeight;
 
     protected Context mContext;
     protected List<AObj> mObjects = new ArrayList<>();
     protected Map<String, Program> mPrograms = new HashMap<>();
-    protected Map<Integer, Texture> mTextures = new HashMap<>();
+    protected Map<String, Texture> mTextures = new HashMap<>();
     protected Camera mCamera = new Camera();
 
     public AScene(Context ctx){
@@ -63,12 +67,23 @@ public class AScene {
         return p;
     }
 
-    public Texture loadTexture(final int id){
+    public Texture loadTexture(String id){
         if(mTextures.containsKey(id)){
             return mTextures.get(id);
         }
         Texture t = Texture.load(mContext, id);
         mTextures.put(id, t);
         return t;
+    }
+
+    protected void draw(GL10 gl) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        updateObjs();
+        drawObjs();
+    }
+
+    public Camera getCamera(){
+        return mCamera;
     }
 }

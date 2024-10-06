@@ -82,11 +82,9 @@ public class Scene extends AScene implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         updateFPS();
-
         loop++;
         GlUtils.checkErr(loop);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        updateObjs();
-        drawObjs();
+
+        super.draw(gl);
     }
 }

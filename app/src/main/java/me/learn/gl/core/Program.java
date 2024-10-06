@@ -86,7 +86,7 @@ public class Program {
         glEnableVertexAttribArray(tmp);
         glVertexAttribPointer(tmp, lengthInFloats, GL_FLOAT, false,
                 strideInFloats*Utils.BytesPerFloat,
-                offsetInFloats);
+                offsetInFloats*Utils.BytesPerFloat);
     }
 
     public void setUniformMatrix4fv(String name, float[] val) {
@@ -98,4 +98,8 @@ public class Program {
         glUniform3f(tmp, x, y, z);
     }
 
+    public void setUniformInt(String name, int val){
+        final int tmp = getUniformLocation(name);
+        glUniform1i(tmp, val);
+    }
 }
