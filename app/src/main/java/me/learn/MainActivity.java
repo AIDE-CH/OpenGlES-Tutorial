@@ -10,6 +10,8 @@ import me.learn.gl.core.IObjUpdateCall;
 import me.learn.gl.customobjs.CubeVert;
 import me.learn.gl.customobjs.PCTObj;
 import me.learn.gl.customobjs.PObj;
+import me.learn.gl.customobjs.SphereVert;
+import me.learn.gl.customobjs.SphereVert2;
 import me.learn.gl.customobjs.WireObj;
 import me.learn.gl.ui.Scene;
 
@@ -56,16 +58,16 @@ public class MainActivity extends AppCompatActivity{
                 mBinding.resetImageButton,
                 mBinding.upperRightTextView);
 
-        float[] verts = CubeVert.createWithOneFileTexture(1.0F, 1.0F, 1.0F, 4, 2);
-        PCTObj cube2 = new PCTObj(verts, false, true, "images/eightcolors.png");
-        cube2.setUpdateCall((timestamp, obj) -> obj.rotate(0.5F,  0F, 1, 0));
-        mScene.addObj(cube2);
-
-        WireObj wo = new WireObj();
-        wo.setColor(0, 1, 0);
-        wo.setVerticesFromTrianglesBuffer(verts, 0, Utils.FloatsPerPosition+Utils.FloatsPerTexture);
-        wo.setUpdateCall((timestamp, obj) -> obj.rotate(0.5F,  0F, 1, 0));
-        mScene.addObj(wo);
+//        float[] verts = CubeVert.createWithOneFileTexture(1.0F, 1.0F, 1.0F, 4, 2);
+//        PCTObj cube2 = new PCTObj(verts, false, true, "images/eightcolors.png");
+//        cube2.setUpdateCall((timestamp, obj) -> obj.rotate(0.5F,  0F, 1, 0));
+//        mScene.addObj(cube2);
+//
+//        WireObj wo = new WireObj();
+//        wo.setColor(0, 1, 0);
+//        wo.setVerticesFromTrianglesBuffer(verts, 0, Utils.FloatsPerPosition+Utils.FloatsPerTexture);
+//        wo.setUpdateCall((timestamp, obj) -> obj.rotate(0.5F,  0F, 1, 0));
+//        mScene.addObj(wo);
 
 //        PObj cube = new PObj(CubeVert.create(1.0F, 1.0F, 1.0F), 1.0F, 1.0F, 0.0F);
 //        cube.setUpdateCall((timestamp, obj) -> {
@@ -80,6 +82,17 @@ public class MainActivity extends AppCompatActivity{
 //        PObj po2 = new PObj(mVerticesData2, 1.0F, 1.0F, 0.0F);
 //        mScene.addObj(po2);
 
+        SphereVert2 sv = new SphereVert2(0.5F,10);
+        float[] verts = sv.getPositionsAndTexture();
+        PCTObj sphere = new PCTObj(verts, false, true,"images/earth.png");
+        sphere.setUpdateCall((timestamp, obj) -> obj.rotate(1F, 0, 1, 0));
+        mScene.addObj(sphere);
+
+        WireObj wo = new WireObj();
+        wo.setColor(0, 1, 0);
+        wo.setVerticesFromTrianglesBuffer(verts, 0, Utils.FloatsPerPosition+Utils.FloatsPerTexture);
+        wo.setUpdateCall((timestamp, obj) -> obj.rotate(1F,  0F, 1, 0));
+        mScene.addObj(wo);
 
     }
 

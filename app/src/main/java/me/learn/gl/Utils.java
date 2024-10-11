@@ -66,4 +66,14 @@ public class Utils {
         return null;
     }
 
+    public static float wrapTo2PI(float v) {
+        float pi2 = (float) Math.PI*2;
+        while (v > pi2){
+            v -= pi2;
+        }
+        while (v < 0){
+            v += pi2;
+        }
+        return v;
+    }
 }
