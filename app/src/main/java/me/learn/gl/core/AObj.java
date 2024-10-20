@@ -56,4 +56,13 @@ public abstract class AObj {
         glLineWidth(lineWidth);
         glDrawArrays(GL_LINES, first, count);
     }
+
+
+    protected void setDepthFuncLEqual() {
+        glDepthFunc(GL_LEQUAL);
+    }
+
+    protected void setDepthFuncLess(){
+        glDepthFunc(GL_LESS);
+    }
 }

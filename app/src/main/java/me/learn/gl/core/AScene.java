@@ -76,6 +76,15 @@ public abstract class AScene {
         return t;
     }
 
+    public Texture loadCubeTexture(String[] ids){
+        if(mTextures.containsKey(ids[0])){
+            return mTextures.get(ids[0]);
+        }
+        Texture t = Texture.loadCube(mContext, ids);
+        mTextures.put(ids[0], t);
+        return t;
+    }
+
     protected void draw(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         

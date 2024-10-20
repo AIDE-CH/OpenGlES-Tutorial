@@ -10,6 +10,7 @@ import me.learn.gl.core.IObjUpdateCall;
 import me.learn.gl.customobjs.CubeVert;
 import me.learn.gl.customobjs.PCTObj;
 import me.learn.gl.customobjs.PObj;
+import me.learn.gl.customobjs.SkyBox;
 import me.learn.gl.customobjs.SphereVert;
 import me.learn.gl.customobjs.SphereVert2;
 import me.learn.gl.customobjs.WireObj;
@@ -81,6 +82,16 @@ public class MainActivity extends AppCompatActivity{
 //
 //        PObj po2 = new PObj(mVerticesData2, 1.0F, 1.0F, 0.0F);
 //        mScene.addObj(po2);
+
+        SkyBox sb = new SkyBox(300,
+                "images/milkyway2/right.png",
+                "images/milkyway2/left.png",
+                "images/milkyway2/top.png",
+                "images/milkyway2/bottom.png",
+                "images/milkyway2/front.png",
+                "images/milkyway2/back.png");
+        //sb.setUpdateCall((timestamp, obj) -> obj.rotate(-0.5F,  1, 1, 0));
+        mScene.addObj(sb);
 
         SphereVert2 sv = new SphereVert2(0.5F,10);
         float[] verts = sv.getPositionsAndTexture();

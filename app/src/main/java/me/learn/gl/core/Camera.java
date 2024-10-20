@@ -6,24 +6,25 @@ import static android.opengl.GLES32.*;
 import android.opengl.Matrix;
 
 import me.learn.gl.GlUtils;
-import me.learn.gl.ui.Input;
+import me.learn.gl.MatUtils;
 
 public class Camera implements IReceiveInput{
     private float[] mViewMatrix;
     private float[] mProjectionMatrix;
-    private float[] camPos = {0, 0, -3};
-    private float camXAngle = 0;
-    private float camYAngle = 0;
+    private float[] mCamPos;
+
+    private float[] mOrientation;
+    private final float[] mUp = {0.0F, 1.0F, 0.0F};
+
+    private float[] mDefaultPos = {0, 0, 10};
+    private float[] mDefaultOrientation = {0.0F, 0.0F, -1.0F};
+
     private AScene mScene;
 
     public Camera(){
         mViewMatrix = new float[16];
         mProjectionMatrix = new float[16];
-
-        Matrix.setIdentityM(mViewMatrix, 0);
-        Matrix.setIdentityM(mProjectionMatrix, 0);
-
-        Matrix.translateM(mViewMatrix, 0, 0.0F, 0.0F, -3.0F );
+        resetCamera();
     }
 
     public void init(AScene scene){
@@ -44,36 +45,43 @@ public class Camera implements IReceiveInput{
 
     @Override
     public void scroll(InputMode mode, float xDist, float yDist) {
-
+        float camXAngle = 0, camYAngle = 0;
         switch (mode){
             case MOVE:
-                camPos[0] += 10*xDist/mScene.getWidth();
-                camPos[2] += 10*yDist/mScene.getHeight();
+                mCamPos[0] -= 10*xDist/mScene.getWidth();
+                mCamPos[2] -= 10*yDist/mScene.getHeight();
                 break;
             case ROTATE:
-                camXAngle += 30*yDist/mScene.getHeight();
-                camYAngle += 30*xDist/mScene.getWidth();
+                camXAngle = 30*yDist/mScene.getHeight();
+                camYAngle = 30*xDist/mScene.getWidth();
                 break;
             case UP_DOWN:
-                camPos[1] -= 10*yDist/mScene.getHeight();
+                mCamPos[1] += 10*yDist/mScene.getHeight();
                 break;
         }
-
-        Matrix.setRotateEulerM2(mViewMatrix, 0, camXAngle, camYAngle, 0);
-        Matrix.translateM(mViewMatrix, 0, camPos[0], camPos[1], camPos[2]);
-
+        updateViewMatrix(camXAngle, camYAngle);
     }
 
+    private void updateViewMatrix(float camXAngle, float camYAngle) {
+        float[] cross = MatUtils.cross(mOrientation, mUp);
+        float[] newOrientation =  MatUtils.rotateVec3(mOrientation, camXAngle, cross);
+        float aa = MatUtils.angle(newOrientation, mUp);
+        if (Math.abs(aa) <=85){
+            mOrientation = newOrientation;
+        }
+        mOrientation = MatUtils.rotateVec3(mOrientation, camYAngle, mUp);
+
+        float[] cent = MatUtils.add(mCamPos, mOrientation);
+        Matrix.setLookAtM(mViewMatrix, 0, mCamPos[0], mCamPos[1], mCamPos[2],
+                cent[0], cent[1], cent[2], mUp[0], mUp[1], mUp[2]);
+    }
 
 
     @Override
     public void resetCamera() {
-        camPos[0] = 0; camPos[1] = 0; camPos[2] = -3;
-        camXAngle = 0;
-        camYAngle = 0;
-
-        Matrix.setRotateEulerM2(mViewMatrix, 0, camXAngle, camYAngle, 0);
-        Matrix.translateM(mViewMatrix, 0, camPos[0], camPos[1], camPos[2]);
+        mCamPos = MatUtils.makeNewCopy(mDefaultPos);
+        mOrientation = MatUtils.makeNewCopy(mDefaultOrientation);
+        updateViewMatrix(0, 0);
     }
 
     public float[] getProjectionMatrix() {
