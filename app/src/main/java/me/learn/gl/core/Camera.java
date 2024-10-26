@@ -91,4 +91,10 @@ public class Camera implements IReceiveInput{
     public float[] getViewMatrix() {
         return mViewMatrix;
     }
+
+    public void setDefaultView(float[] pos, float[] orientation) {
+        mDefaultPos = pos;
+        mDefaultOrientation = orientation;
+        resetCamera();
+    }
 }

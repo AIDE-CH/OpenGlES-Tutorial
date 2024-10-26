@@ -58,4 +58,14 @@
         app:layout_constraintStart_toEndOf="@id/upDownImageButton"
         app:srcCompat="@drawable/camera_back" />
 
+
+    <ImageButton
+        android:id="@+id/chaneViewImageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:drawable/presence_video_online"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
