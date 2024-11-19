@@ -27,7 +27,7 @@ public class SkyBox extends AObj {
     }
 
     @Override
-    public void onInit() {
+    public void onInit() throws Exception {
         mProgram = mScene.loadProgram("colorcubetexture");
         mBuffer = new VertexBuffer();
         mBuffer.load(mVertices, true);
@@ -44,7 +44,11 @@ public class SkyBox extends AObj {
     }
 
     @Override
-    public void destroy(AScene scene) {
+    public void destroy() {
+        if(mBuffer != null){
+            mBuffer.destroy();
+            mBuffer = null;
+        }
     }
 
     @Override

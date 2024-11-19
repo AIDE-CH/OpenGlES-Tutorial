@@ -1,5 +1,6 @@
 package me.learn.gl.core;
 
+import static android.opengl.GLES20.glDeleteShader;
 import static android.opengl.GLES32.*;
 
 import android.content.Context;
@@ -11,28 +12,29 @@ import me.learn.gl.Utils;
 public class Program {
     private final static String TAG = Utils.class.getSimpleName();
     private int mId = -1;
-    private int mVertexShaderId = -1;
-    private int mFragmentShaderId = -1;
-    private String mVertCode;
-    private String mFragCode;
     private Program(){
     }
 
-    public static Program load(Context ctx, String lcName) {
+    public void destroy(){
+        if(mId != -1) {
+            glDeleteShader(mId);
+            mId = -1;
+        }
+    }
+
+    public static Program load(Context ctx, String lcName) throws Exception {
         Program p = new Program();
         p.createProgram(ctx, lcName);
         return p;
     }
 
 
-    private int compileShader(Context ctx, String name, int type){
+    private int compileShader(Context ctx, String name, int type) throws Exception {
         String shaderCode;
         if(type == GL_VERTEX_SHADER){
             shaderCode = Utils.readAssetFile(ctx, name+".vert");
-            mVertCode = shaderCode;
         }else{
             shaderCode = Utils.readAssetFile(ctx, name+".frag");
-            mFragCode = shaderCode;
         }
         int shaderId = glCreateShader(type);
         glShaderSource(shaderId, shaderCode);
@@ -45,19 +47,18 @@ public class Program {
             String str = glGetShaderInfoLog(shaderId);
             Log.e(TAG, "Error compiling shader: " + str);
             glDeleteShader(shaderId);
-            return -1;
+            throw  new Exception("Shader compile error: " + str);
         }
         return shaderId;
     }
 
-    private void createProgram(Context ctx, String name){
-        mVertexShaderId =  compileShader(ctx, name, GL_VERTEX_SHADER);
-
-        mFragmentShaderId = compileShader(ctx, name, GL_FRAGMENT_SHADER);
+    private void createProgram(Context ctx, String name) throws Exception {
+        int vertexShaderId =  compileShader(ctx, name, GL_VERTEX_SHADER);
+        int fragmentShaderId = compileShader(ctx, name, GL_FRAGMENT_SHADER);
 
         mId = glCreateProgram();
-        glAttachShader(mId, mVertexShaderId);
-        glAttachShader(mId, mFragmentShaderId);
+        glAttachShader(mId, vertexShaderId);
+        glAttachShader(mId, fragmentShaderId);
         glLinkProgram(mId);
         GlUtils.checkErr(0);
         int[] success = new int[1];
@@ -66,7 +67,10 @@ public class Program {
         if(success[0] == 0){
             String str = glGetProgramInfoLog(mId);
             Log.e(TAG, str);
+            throw  new Exception("program link error: " + str);
         }
+        glDeleteShader(vertexShaderId);
+        glDeleteShader(fragmentShaderId);
     }
 
     public void use() {

@@ -5,6 +5,7 @@ import static android.opengl.GLES32.*;
 
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import me.learn.gl.GlUtils;
 import me.learn.gl.core.AScene;
 
 public class Scene extends AScene implements GLSurfaceView.Renderer {
+    static String TAG = "Scene";
     private Input mInput;
     private GLSurfaceView mSurface;
     private Activity mActivity;
@@ -51,15 +53,31 @@ public class Scene extends AScene implements GLSurfaceView.Renderer {
     }
 
     @Override
+    public void destroy(){
+        if(mInput != null){
+            mInput.destroy();
+            mInput = null;
+        }
+        mSurface = null;
+        super.destroy();
+    }
+
+    @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
-        glEnable(GL_DEPTH_TEST);
-        mCamera.init(this);
-        initObjs();
+        try {
+            if(mSurface == null) return;
+            glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
+            glEnable(GL_DEPTH_TEST);
+            mCamera.init(this);
+            initObjs();
+        }catch (Exception ex){
+            Log.e(TAG, "onSurfaceCreated: " + ex.getMessage());
+        }
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        if(mSurface == null) return;
         mWidth = width;
         mHeight = height;
 
@@ -76,16 +94,23 @@ public class Scene extends AScene implements GLSurfaceView.Renderer {
             frameCount = 0;
             startTime = currTime;
             DecimalFormat df = new DecimalFormat("#.00");
-            mActivity.runOnUiThread(()-> {mUpperRightTextView.setText("FPS:" + df.format(fps));} );
+            final String nobjs = mObjects.size() + "";
+            mActivity.runOnUiThread(()-> {mUpperRightTextView.setText("FPS:" + df.format(fps) + " objs: " + nobjs);} );
         }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        if(mSurface == null) return;
         updateFPS();
         loop++;
         GlUtils.checkErr(loop);
 
-        super.draw(gl);
+        try {
+            super.draw(gl);
+        } catch (Exception e) {
+            Log.d(TAG, "onDrawFrame: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

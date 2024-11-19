@@ -58,9 +58,20 @@
         app:layout_constraintStart_toEndOf="@id/upDownImageButton"
         app:srcCompat="@drawable/camera_back" />
 
+    <ImageButton
+        android:id="@+id/closeImageButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/surfaceView"
+        app:layout_constraintStart_toEndOf="@id/resetImageButton"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+
+
+
 
     <ImageButton
-        android:id="@+id/chaneViewImageButton"
+        android:id="@+id/changeViewImageButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
         app:layout_constraintTop_toTopOf="parent"

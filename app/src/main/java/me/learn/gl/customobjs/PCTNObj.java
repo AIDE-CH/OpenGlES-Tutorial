@@ -40,8 +40,12 @@ public class PCTNObj extends AObj {
         nVertices = vertices.length / mStrideInFloats;
     }
 
+    public void setUniformColor(float[] color){
+        mUniformColor = color;
+    }
+
     @Override
-    public void onInit() {
+    public void onInit() throws Exception {
         mProgram = mScene.loadProgram("allshader");
         mBuffer = new VertexBuffer();
         mBuffer.load(mVertices, true);
@@ -70,7 +74,11 @@ public class PCTNObj extends AObj {
     }
 
     @Override
-    public void destroy(AScene scene) {
+    public void destroy() {
+        if(mBuffer != null) {
+            mBuffer.destroy();
+            mBuffer = null;
+        }
     }
 
     @Override
@@ -83,7 +91,7 @@ public class PCTNObj extends AObj {
         mProgram.setUniformInt("hasColor", mHasColor? 1: 0);
         mProgram.setUniformInt("hasTexture", mHasTexture? 1: 0);
         mProgram.setUniformInt("hasNormal", mHasNormal? 1: 0);
-        mProgram.setUniformInt("hasUniformColor", mUniformColor== null? 1: 0);
+        mProgram.setUniformInt("hasUniformColor", mUniformColor== null? 0: 1);
 
         mProgram.setUniformMatrix4fv("a_Model", mModelMatrix);
         mProgram.setUniformMatrix4fv("a_View", viewMatrix);

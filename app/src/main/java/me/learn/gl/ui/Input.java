@@ -118,7 +118,22 @@ public class Input implements View.OnTouchListener, GestureDetector.OnGestureLis
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        if(mInReceivers.size() == 0) return true;
         mGestureDetector.onTouchEvent(event);
         return true;
+    }
+
+    public void destroy() {
+        try {
+            mInReceivers.clear();
+
+            mGestureDetector = null;
+            mMoveImageButton.setOnClickListener(null);
+            mRotateImageButton.setOnClickListener(null);
+            mUpDownImageButton.setOnClickListener(null);
+            mResetImageButton.setOnClickListener(null);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 }

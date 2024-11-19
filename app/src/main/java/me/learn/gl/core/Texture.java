@@ -16,6 +16,13 @@ public class Texture {
     private Texture(){
     }
 
+    public void destroy(){
+        if(mId != -1) {
+            glDeleteTextures(1, new int[]{mId}, 0);
+            mId = -1;
+        }
+    }
+
     public static Texture load(Context ctx, String path) {
         Texture t = new Texture();
         t.mIsCube = false;
@@ -29,6 +36,14 @@ public class Texture {
         t.sendCubeTextureToGl(ctx, ids);
         return t;
     }
+
+//    public void unbind(){
+//        if(mIsCube){
+//            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+//        }else {
+//            glBindTexture(GL_TEXTURE_2D, 0);
+//        }
+//    }
 
     public void bind(){
         if(mIsCube){

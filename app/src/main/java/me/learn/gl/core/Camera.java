@@ -31,8 +31,7 @@ public class Camera implements IReceiveInput{
         mScene = scene;
     }
 
-    public void destroy(AScene scene){
-
+    public void destroy(){
     }
 
     public void update(){

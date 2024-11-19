@@ -157,6 +157,25 @@ public class MatUtils {
         return res;
     }
 
+
+    public static float[] mat4Mat4Multiply(float[] a, float[] b) {
+        float[] ret = new float[16];
+        for(int i = 0; i < 4; i++) {
+
+            for (int j = 0; j < 4; j++) {
+                int retIdx = j * 4 + i;
+                ret[retIdx] = 0;
+                for (int k = 0; k < 4; k++) {
+                    int aIdx = 4 * k + i;
+                    int bIdx = 4 * j + k;
+                    ret[retIdx] += a[aIdx] * b[bIdx];
+                }
+
+            }
+        }
+        return ret;
+    }
+
     public static float angle(float[] a, float[] b) {
         float d = dot(a, b);
         float na = norm(a);

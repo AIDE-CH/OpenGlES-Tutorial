@@ -6,7 +6,6 @@ in vec3 a_Normal;
 
 out vec3 outColor;
 out vec2 outTexture;
-flat out int outHasColor;
 flat out int outHasTexture;
 flat out int outHasNormal;
 
@@ -26,7 +25,6 @@ uniform mat4 a_Projection;
 void main()
 {
     gl_Position = a_Projection*a_View*a_Model*vec4(a_Position, 1.0f);
-    outHasColor = hasColor;
     outHasTexture = hasTexture;
     outHasNormal = hasNormal;
 
@@ -34,7 +32,7 @@ void main()
     if(hasUniformColor > 0){
         outColor *= u_Color;
     }
-    if(outHasColor > 0) {
+    if(hasColor > 0) {
         outColor *= a_Color;
     }
     if(outHasTexture > 0) {

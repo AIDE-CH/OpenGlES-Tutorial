@@ -8,14 +8,24 @@ import android.opengl.Matrix;
 import me.learn.gl.MatUtils;
 
 public abstract class AObj {
-    protected float[] mModelMatrix;
+    public float[] mModelMatrix;
     protected AScene mScene;
     protected IObjUpdateCall mUpdateCall;
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
+
+    protected boolean initialized = false;
 
     public void setUpdateCall(IObjUpdateCall call){
         mUpdateCall = call;
     }
-    public void init(AScene scene){
+    public void init(AScene scene) throws Exception {
         mScene = scene;
         onInit();
     }
@@ -26,9 +36,9 @@ public abstract class AObj {
         onUpdate(timestamp);
     }
 
-    public abstract void onInit();
+    public abstract void onInit() throws Exception;
     public abstract void onUpdate(long timestamp);
-    public abstract void destroy(AScene scene);
+    public abstract void destroy();
     public abstract void draw(float[] viewMatrix, float[] projectionMatrix);
 
     public AObj(){
@@ -64,5 +74,9 @@ public abstract class AObj {
 
     protected void setDepthFuncLess(){
         glDepthFunc(GL_LESS);
+    }
+
+    public void setModelToIdentity() {
+        Matrix.setIdentityM(mModelMatrix, 0);
     }
 }

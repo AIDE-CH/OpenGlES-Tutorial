@@ -6,7 +6,6 @@ in vec2 outTexture;
 in vec3 outFragPos;
 in vec3 outNormal;
 
-flat in int outHasColor;
 flat in int outHasTexture;
 flat in int outHasNormal;
 
@@ -32,10 +31,8 @@ uniform Material material;
 uniform Light light;
 void main()
 {
-    fragmentColor = vec4(1.0F, 1.0F, 1.0F, 1.0F);
-    if(outHasColor > 0) {
-        fragmentColor *=  vec4(outColor, 1.0F);
-    }
+    fragmentColor =  vec4(outColor, 1.0F);
+
     if(outHasTexture > 0) {
         fragmentColor *=  texture(texture1, outTexture);
     }

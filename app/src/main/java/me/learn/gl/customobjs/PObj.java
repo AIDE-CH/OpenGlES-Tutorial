@@ -29,7 +29,7 @@ public class PObj extends AObj {
     }
 
     @Override
-    public void onInit() {
+    public void onInit() throws Exception {
         mProgram = mScene.loadProgram("modelviewprojection");
         mBuffer = new VertexBuffer();
         mBuffer.load(mVertices, true);
@@ -38,7 +38,11 @@ public class PObj extends AObj {
     }
 
     @Override
-    public void destroy(AScene scene) {
+    public void destroy() {
+        if(mBuffer != null){
+            mBuffer.destroy();
+            mBuffer = null;
+        }
     }
 
     @Override

@@ -1,14 +1,7 @@
 package me.learn.gl.core;
 
 
-import static android.opengl.GLES20.GL_ARRAY_BUFFER;
-import static android.opengl.GLES20.GL_DYNAMIC_DRAW;
-import static android.opengl.GLES20.GL_STATIC_DRAW;
-import static android.opengl.GLES20.glBindBuffer;
-import static android.opengl.GLES20.glBufferData;
-import static android.opengl.GLES20.glGenBuffers;
-import static android.opengl.GLES30.glBindVertexArray;
-import static android.opengl.GLES30.glGenVertexArrays;
+import static android.opengl.GLES32.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -46,5 +39,15 @@ public class VertexBuffer {
 
     public void bind(){
         glBindVertexArray(mId);
+    }
+
+    public void destroy() {
+        if(mId != -1) {
+            glDeleteVertexArrays(1, new int[]{mId}, 0);
+            mId = -1;
+        }
+        if(mBuffId != -1) {
+            glDeleteBuffers(1, new int[]{mBuffId}, 0);
+        }
     }
 }
