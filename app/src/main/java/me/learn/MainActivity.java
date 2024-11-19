@@ -4,16 +4,12 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import me.learn.databinding.ActivityMainBinding;
-import me.learn.gl.Utils;
 import me.learn.gl.core.AObj;
-import me.learn.gl.core.IObjUpdateCall;
-import me.learn.gl.customobjs.CubeVert;
-import me.learn.gl.customobjs.PCTObj;
-import me.learn.gl.customobjs.PObj;
+import me.learn.gl.core.WavefrontLoader;
+import me.learn.gl.customobjs.PCTNObj;
 import me.learn.gl.customobjs.PathVert;
 import me.learn.gl.customobjs.SkyBox;
 import me.learn.gl.customobjs.SphereObj;
-import me.learn.gl.customobjs.SphereVert;
 import me.learn.gl.customobjs.SphereVert2;
 import me.learn.gl.customobjs.WireObj;
 import me.learn.gl.ui.Scene;
@@ -112,7 +108,7 @@ public class MainActivity extends AppCompatActivity{
 
 
         SphereVert2 sv2 = new SphereVert2(1, 10);
-        PCTObj sun = new PCTObj(sv2.getPositionsAndTexture(), false, true,
+        PCTNObj sun = new PCTNObj(sv2.getPositionsAndTexture(), false, true, false,
                 "images/sun.jpg");
         sun.setUpdateCall((timestamp, obj) -> moveSun(timestamp, obj));
         mScene.addObj(sun);
@@ -127,6 +123,21 @@ public class MainActivity extends AppCompatActivity{
 //        wo.setVerticesFromTrianglesBuffer(verts, 0, Utils.FloatsPerPosition+Utils.FloatsPerTexture);
 //        wo.setUpdateCall((timestamp, obj) -> obj.rotate(1F,  0F, 1, 0));
         //mScene.addObj(wo);
+
+        PCTNObj cubeLike = null;
+        try {
+            WavefrontLoader wvLoader = new WavefrontLoader(this, "objs/cubelike/cube-like.obj");
+            cubeLike = new PCTNObj(wvLoader.getFaces(true, true), false, true,
+                    true,
+                    "objs/cubelike/simpletexture.png");
+            cubeLike.translate(new float[]{0, 3, 0});
+            cubeLike.setUpdateCall(((timestamp, obj) -> obj.rotate(2, 1, 1, 0)));
+            mScene.addObj(cubeLike);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
 
     }
 

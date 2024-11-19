@@ -11,7 +11,7 @@ import me.learn.gl.MatUtils;
 public class Camera implements IReceiveInput{
     private float[] mViewMatrix;
     private float[] mProjectionMatrix;
-    private float[] mCamPos;
+    private float[] mPos;
 
     private float[] mOrientation;
     private final float[] mUp = {0.0F, 1.0F, 0.0F};
@@ -48,15 +48,15 @@ public class Camera implements IReceiveInput{
         float camXAngle = 0, camYAngle = 0;
         switch (mode){
             case MOVE:
-                mCamPos[0] -= 10*xDist/mScene.getWidth();
-                mCamPos[2] -= 10*yDist/mScene.getHeight();
+                mPos[0] -= 10*xDist/mScene.getWidth();
+                mPos[2] -= 10*yDist/mScene.getHeight();
                 break;
             case ROTATE:
                 camXAngle = 30*yDist/mScene.getHeight();
                 camYAngle = 30*xDist/mScene.getWidth();
                 break;
             case UP_DOWN:
-                mCamPos[1] += 10*yDist/mScene.getHeight();
+                mPos[1] += 10*yDist/mScene.getHeight();
                 break;
         }
         updateViewMatrix(camXAngle, camYAngle);
@@ -71,15 +71,15 @@ public class Camera implements IReceiveInput{
         }
         mOrientation = MatUtils.rotateVec3(mOrientation, camYAngle, mUp);
 
-        float[] cent = MatUtils.add(mCamPos, mOrientation);
-        Matrix.setLookAtM(mViewMatrix, 0, mCamPos[0], mCamPos[1], mCamPos[2],
+        float[] cent = MatUtils.add(mPos, mOrientation);
+        Matrix.setLookAtM(mViewMatrix, 0, mPos[0], mPos[1], mPos[2],
                 cent[0], cent[1], cent[2], mUp[0], mUp[1], mUp[2]);
     }
 
 
     @Override
     public void resetCamera() {
-        mCamPos = MatUtils.makeNewCopy(mDefaultPos);
+        mPos = MatUtils.makeNewCopy(mDefaultPos);
         mOrientation = MatUtils.makeNewCopy(mDefaultOrientation);
         updateViewMatrix(0, 0);
     }
@@ -96,5 +96,9 @@ public class Camera implements IReceiveInput{
         mDefaultPos = pos;
         mDefaultOrientation = orientation;
         resetCamera();
+    }
+
+    public float[] getPos() {
+        return mPos;
     }
 }

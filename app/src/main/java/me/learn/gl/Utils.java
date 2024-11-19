@@ -19,6 +19,7 @@ public class Utils {
     public final static int FloatsPerPosition = 3;
     public final static int FloatsPerColor = 3;
     public final static int FloatsPerTexture = 2;
+    public final static int FloatsPerNormal = 3;
 
     public static Bitmap readBitmapResource(Context ctx, int resourceId){
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -75,5 +76,11 @@ public class Utils {
             v += pi2;
         }
         return v;
+    }
+
+    public static boolean isNullOrEmpty(String str) {
+        if(str == null) return true;
+        if(str.isEmpty()) return true;
+        return false;
     }
 }

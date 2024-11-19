@@ -65,6 +65,21 @@ public class SphereObj extends AObj {
         mProgram.setUniformMatrix4fv("a_View", viewMatrix);
         mProgram.setUniformMatrix4fv("a_Projection", projectionMatrix);
 
+
+        float[] lightPos = {0.0F, 0.0F, 0.0F};
+        mProgram.setUniform3fv("light.position", lightPos);
+        mProgram.setUniform3fv("cameraPosition", mScene.getCamera().getPos());
+
+        mProgram.setUniform3fv("light.ambient", new float[]{1.0f, 1.0f, 0.0f});
+        mProgram.setUniform3fv("light.diffuse", new float[]{1.0f, 1.0f, 0.0f});
+        mProgram.setUniform3fv("light.specular", new float[]{1.0f, 1.0f, 0.0f});
+
+        mProgram.setUniform3fv("material.ambient", new float[]{0.1f, 0.1f, 0.1f});
+        mProgram.setUniform3fv("material.diffuse", new float[]{0.7f, 0.7f, 0.7f});
+        mProgram.setUniform3fv("material.specular", new float[]{1.0f, 1.0f, 1.0f});
+        mProgram.setUniformFloat("material.shininess", 20.0f);
+
+
         drawTriangles(0, nVertices);
 
         //setDepthFuncLess();

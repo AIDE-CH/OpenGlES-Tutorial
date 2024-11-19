@@ -102,4 +102,14 @@ public class Program {
         final int tmp = getUniformLocation(name);
         glUniform1i(tmp, val);
     }
+
+    public void setUniform3fv(String name, float[] v){
+        final int tmp = getUniformLocation(name);
+        glUniform3fv(tmp, 1, v, 0);
+    }
+
+    public void setUniformFloat(String name, float val){
+        final int tmp = getUniformLocation(name);
+        glUniform1f(tmp, val);
+    }
 }
